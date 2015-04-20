@@ -2,16 +2,10 @@
 
 #  Call all of the imports
 import time
-import pymysql
 import logging
-#from neopixel import *
 
 # Set all of the constants
 cstlogFile = '/var/log/automation.log'
-cstDBHost = 'localhost'
-cstDBName = 'automation'
-cstDBUser = 'automation'
-cstDBPass = 'Pass1234'
 
 # Setup logging
 #logLevel = logging.CRITICAL
