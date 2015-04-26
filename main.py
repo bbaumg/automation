@@ -1,18 +1,24 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python3
 
 #  Call all of the imports
 import time
 import logging
+import configparser
+import subprocess
 
 # Set all of the constants
 cstlogFile = '/var/log/automation.log'
+configFile = '/home/pi/automation/config.ini'
+
+# Read in settings from the config file
+config = configparser.ConfigParser()
+config.sections()
+config.read(configFile)
+config.sections()
+logLevel = config['main']['logLevel']
+program = config['main']['program']
 
 # Setup logging
-#logLevel = logging.CRITICAL
-#logLevel = logging.ERROR
-#logLevel = logging.WARNING
-#logLevel = logging.INFO
-logLevel = logging.DEBUG
 logging.basicConfig(
   level=logLevel, 
   format='%(asctime)s - %(levelno)s - %(funcName)s - %(message)s', 
@@ -37,7 +43,8 @@ if __name__ == '__main__':
   logger.info("Beginning main loop")
   try:
     while True: # The main loop that will never end
-      time.sleep(5)
+      subprocess.call("pyephem.py", shell=True)
+      time.sleep(1)
       logger.debug("Bottom of Main Loop")
   except:
     logger.error("Unexpected error!")
