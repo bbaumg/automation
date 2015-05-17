@@ -20,7 +20,6 @@ prevSet = ephem.localtime(local.previous_setting(sun))
 prevRise = ephem.localtime(local.previous_rising(sun))
 
 print("Previous sunrise in KC was: ",ephem.localtime(local.previous_rising(sun)))
-logger.debug("Previous sunrise in KC was: ",ephem.localtime(local.previous_rising(sun)))
 print("Previous sunset in KC was: ",ephem.localtime(local.previous_setting(sun)))
 print("Next sunrise in KC will be: ",ephem.localtime(local.next_rising(sun)))
 print("Next sunset in KC will be: ",ephem.localtime(local.next_setting(sun)))

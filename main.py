@@ -43,7 +43,8 @@ if __name__ == '__main__':
   logger.info("Beginning main loop")
   try:
     while True: # The main loop that will never end
-      subprocess.call("pyephem.py", shell=True)
+      #subprocess.call("/home/pi/automation/pyephem.py", shell=True)
+      import pyephem
       time.sleep(1)
       logger.debug("Bottom of Main Loop")
   except:
