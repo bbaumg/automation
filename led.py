@@ -2,6 +2,7 @@
 
 #  Call all of the imports
 import time
+import random
 import MySQLdb
 import logging
 from neopixel import *
@@ -58,6 +59,59 @@ def rainbow(strip, wait_ms=50, iterations=1):
 		strip.show()
 		time.sleep(wait_ms/1000.0)
 
+def halloween(strip):
+	orange(strip)
+	delay = random.randint(60,90)
+	count = random.randint(3,7)
+	logger.debug("The random delay is = " + str(delay))
+	logger.debug("The strobe count is = " + str(count))
+	time.sleep(delay)
+	for _ in range(count):
+		white(strip)
+		time.sleep(.04)
+		off(strip)
+		time.sleep(.04)
+	orange(strip)
+
+def strobe(strip):
+	for _ in range(100):
+		white(strip)
+		time.sleep(.05)
+		off(strip)
+		time.sleep(.05)
+
+def off(strip):
+        for i in range(strip.numPixels()):
+                strip.setPixelColor(i, Color(0,0,0))
+        strip.show()
+
+def red(strip):
+	for i in range(strip.numPixels()):
+		strip.setPixelColor(i, Color(0,255,0))
+	strip.show()
+
+def green(strip):
+	for i in range(strip.numPixels()):
+		strip.setPixelColor(i, Color(255,0,0))
+	strip.show()
+
+def blue(strip):
+	for i in range(strip.numPixels()):
+		strip.setPixelColor(i, Color(0,0,255))
+	strip.show()
+
+def white(strip):
+        for i in range(strip.numPixels()):
+                strip.setPixelColor(i, Color(255,255,255))
+        strip.show()
+
+def orange(strip):
+        for i in range(strip.numPixels()):
+                strip.setPixelColor(i, Color(55,255,0))
+        strip.show()
+
+
+
 
 #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 # END FUNCTIONS - BEGIN PROGRAM
@@ -73,18 +127,30 @@ if __name__ == '__main__':
   strip = Adafruit_NeoPixel(LED_COUNT, LED_PIN, LED_FREQ_HZ, LED_DMA, LED_INVERT)
   strip.begin()
   
+  logger.critical("LED Startup Process")
+  logger.critical("Starting RED")
+  red(strip)
+  time.sleep(1)
+  logger.critical("Starting GREEN")
+  green(strip)
+  time.sleep(1)
+  logger.critical("Starting BLUE")
+  blue(strip)
+  time.sleep(1)
+  logger.critical("Starting WHITE")
+  white(strip)
+  time.sleep(1)
+
+  
+
+
   logger.info("Beginning main loop")
   try:
 	while True: # The main loop that will never end
-		rainbow(strip)
-		#strip.setPixelColor(0, Color(255,0,0))
-                #strip.setPixelColor(1, Color(0,255,0))
-                #strip.setPixelColor(2, Color(0,0,255))
-                #strip.setPixelColor(3, Color(255,255,255))
-                #strip.setPixelColor(4, Color(255,255,255))
-                #strip.setPixelColor(5, Color(0,0,0))
-		#strip.show()
-		#time.sleep(5)
+		#rainbow(strip)
+		halloween(strip)
+		#strobe(strip)
+		time.sleep(1)
 		logger.debug("Bottom of Main Loop")
   except:
     logger.error("Writing Sensor Data = Unexpected error!")
