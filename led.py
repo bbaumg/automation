@@ -2,6 +2,7 @@
 
 #  Call all of the imports
 import time
+import math
 import random
 import MySQLdb
 import logging
@@ -15,11 +16,11 @@ cstDBUser = 'automation'
 cstDBPass = 'Pass1234'
 
 # LED strip configuration:
-LED_COUNT   = 4      # Number of LED pixels.
-LED_PIN     = 18      # GPIO pin connected to the pixels (must support PWM!).
-LED_FREQ_HZ = 800000  # LED signal frequency in hertz (usually 800khz)
-LED_DMA     = 5       # DMA channel to use for generating signal (try 5)
-LED_INVERT  = False   # True to invert the signal (when using NPN transistor level shift)
+cstLEDCount   = 10      # Number of LED pixels.
+cstLEDPin     = 18      # GPIO pin connected to the pixels (must support PWM!).
+cstLEDFreqHZ  = 800000  # LED signal frequency in hertz (usually 800khz)
+cstLEDDMA     = 5       # DMA channel to use for generating signal (try 5)
+cstLEDInvert  = False   # True to invert the signal (when using NPN transistor level shift)
 
 # Setup logging
 #logLevel = logging.CRITICAL
@@ -40,8 +41,10 @@ logger = logging.getLogger(__name__)
 # END SETUP - BEGIN FUNCTIONS
 #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
+# Generate rainbow colors across 0-255 positions
+#   pos = starting position
 def wheel(pos):
-	"""Generate rainbow colors across 0-255 positions."""
+	logger.info("Begin Function")
 	if pos < 85:
 		return Color(pos * 3, 255 - pos * 3, 0)
 	elif pos < 170:
@@ -51,67 +54,91 @@ def wheel(pos):
 		pos -= 170
 		return Color(0, pos * 3, 255 - pos * 3)
 
+# Draw rainbow that fades across all pixels at once
+#   strip = strip object defined at the beginning of the script
+#   wait_ms = ?
+#   iterations = ?
 def rainbow(strip, wait_ms=50, iterations=1):
-	"""Draw rainbow that fades across all pixels at once."""
+	logger.info("Begin Function")
 	for j in range(256*iterations):
 		for i in range(strip.numPixels()):
 			strip.setPixelColor(i, wheel((i+j) & 255))
 		strip.show()
 		time.sleep(wait_ms/1000.0)
+	logger.info("End Function")
 
+# Define functions which animate LEDs in various ways.
+def colorWipe(strip, color, wait_ms=50):
+	"""Wipe color across display a pixel at a time."""
+	for i in range(strip.numPixels()):
+		strip.setPixelColor(i, color)
+		strip.show()
+		time.sleep(wait_ms/1000.0)
+
+# Used for halloween runs orange with randome lightning
+#   strip = strip object defined at the beginning of the script
 def halloween(strip):
-	orange(strip)
+	logger.info("Begin Function")
+	setAllLEDs(strip,cOrange)
 	delay = random.randint(60,90)
 	count = random.randint(3,7)
 	logger.debug("The random delay is = " + str(delay))
 	logger.debug("The strobe count is = " + str(count))
 	time.sleep(delay)
 	for _ in range(count):
-		white(strip)
+		setAllLEDs(strip,cWhite)
 		time.sleep(.04)
-		off(strip)
+		setAllLEDs(strip,cOff)
 		time.sleep(.04)
-	orange(strip)
+	setAllLEDs(strip,cOrange)
+	logger.info("End Function")
 
+def july4th(strip):
+  logger.info("Begin Function")
+  segments=int(math.ceil((cstLEDCount+1)/3))
+  logger.debug("LED Segments = " + str(segments))
+  colors=[cRed,cWhite,cBlue]
+  for p in range(0, 3, 1):
+    logger.debug("p = " + str(p))
+    for s in range(1, segments, 1):
+      logger.debug("s = " + str(s))
+  
+  #strip.setPixelColor(int(p+(i*3)-ii), colors[ii]);
+  #strip.show()
+  time.sleep(1)
+  logger.info("End Function")
+
+def july4th_v1(strip):
+  logger.info("Begin Function")
+  for p in range(0, cstLEDCount, 1):
+    strip.setPixelColor(p, cRed)
+    strip.setPixelColor(p+1, cWhite)
+    strip.setPixelColor(p+2, cBlue)
+    strip.show()
+    time.sleep(1)
+  logger.info("End Function")
+
+# Continual white strobe
+#   strip = strip object defined at the beginning of the script
 def strobe(strip):
-	for _ in range(100):
-		white(strip)
-		time.sleep(.05)
-		off(strip)
-		time.sleep(.05)
+  logger.info("Begin Function")
+  delay = 5
+  logger.debug("Delay = " + str(delay))
+  for _ in range(100):
+    setAllLEDs(strip,cWhite)
+    time.sleep(delay/100)
+    setAllLEDs(strip,cOff)
+    time.sleep(delay/100)
+  logger.info("End Function")
 
-def off(strip):
-        for i in range(strip.numPixels()):
-                strip.setPixelColor(i, Color(0,0,0))
-        strip.show()
-
-def red(strip):
-	for i in range(strip.numPixels()):
-		strip.setPixelColor(i, Color(0,255,0))
-	strip.show()
-
-def green(strip):
-	for i in range(strip.numPixels()):
-		strip.setPixelColor(i, Color(255,0,0))
-	strip.show()
-
-def blue(strip):
-	for i in range(strip.numPixels()):
-		strip.setPixelColor(i, Color(0,0,255))
-	strip.show()
-
-def white(strip):
-        for i in range(strip.numPixels()):
-                strip.setPixelColor(i, Color(255,255,255))
-        strip.show()
-
-def orange(strip):
-        for i in range(strip.numPixels()):
-                strip.setPixelColor(i, Color(55,255,0))
-        strip.show()
-
-
-
+# Set all LEDs to same color
+def setAllLEDs(strip, varColor):
+  logger.info("Begin Function")
+  logger.info("Color = " + str(varColor))
+  for i in range(strip.numPixels()):
+    strip.setPixelColor(i, varColor)
+  strip.show()
+  logger.info("End Function")
 
 #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 # END FUNCTIONS - BEGIN PROGRAM
@@ -124,34 +151,52 @@ if __name__ == '__main__':
   logger.critical("*****************************************************")
   logger.critical("Log Level = " + str(logLevel))
   logger.critical("Starting NeoPixel")
-  strip = Adafruit_NeoPixel(LED_COUNT, LED_PIN, LED_FREQ_HZ, LED_DMA, LED_INVERT)
+  strip = Adafruit_NeoPixel(cstLEDCount, cstLEDPin, cstLEDFreqHZ, cstLEDDMA, cstLEDInvert)
   strip.begin()
   
+  # LED Color Codes
+  logger.info("Set all base color codes")
+  cOff    = Color(0,0,0)
+  cRed    = Color(0,255,0)
+  cGreen  = Color(255,0,0)
+  cBlue   = Color(0,0,255)
+  cWhite  = Color(255,255,255)
+  cYellow = Color(255,255,10)
+  cOrange = Color(55,255,0)
+  cPurple = Color(0,75,130)
+  cPink   = Color(21,255,133)
+
   logger.critical("LED Startup Process")
   logger.critical("Starting RED")
-  red(strip)
-  time.sleep(1)
+  setAllLEDs(strip,cRed)
+  time.sleep(.2)
   logger.critical("Starting GREEN")
-  green(strip)
-  time.sleep(1)
+  setAllLEDs(strip,cGreen)
+  time.sleep(.2)
   logger.critical("Starting BLUE")
-  blue(strip)
-  time.sleep(1)
+  setAllLEDs(strip,cBlue)
+  time.sleep(.2)
   logger.critical("Starting WHITE")
-  white(strip)
-  time.sleep(1)
-
-  
-
+  setAllLEDs(strip,cWhite)
+  time.sleep(.2)
+  logger.critical("wiping  RED")
+  colorWipe(strip, cRed)
+  logger.critical("wiping  GREEN")
+  colorWipe(strip, cGreen)
+  logger.critical("wiping  BLUE")
+  colorWipe(strip, cBlue)
+  logger.critical("wiping  WHITE")
+  colorWipe(strip, cWhite)
 
   logger.info("Beginning main loop")
   try:
-	while True: # The main loop that will never end
-		#rainbow(strip)
-		halloween(strip)
-		#strobe(strip)
-		time.sleep(1)
-		logger.debug("Bottom of Main Loop")
+    while True: # The main loop that will never end
+      #rainbow(strip)
+      #halloween(strip)
+      #strobe(strip)
+      july4th(strip)
+      time.sleep(1)
+      logger.debug("Bottom of Main Loop")
   except:
     logger.error("Writing Sensor Data = Unexpected error!")
     logger.exception("ERROR!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
