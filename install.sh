@@ -34,8 +34,10 @@ echo -en "\n\n"
 bash /home/pi/automation/init/update.sh
 
 # Automate git update
-echo -en "*************************************************************************\n"\
-"Add the git update script to root crontab\n\n"\
-"copy this:  0 1 * * * bash /home/pi/automation/git_commit.sh >> /var/log/git_commit.log\n\n"\
-"run:  sudo crontab -e\n\n"\
-"Paste into roots cron\n"
+crontab -l > rootcrontab
+echo -en "0 1 * * * bash /home/pi/automation/git_commit.sh\n" >> rootcrontab
+crontab rootcrontab
+rm -f rootcrontab
+
+# Completed
+echo "Installation Complete"
