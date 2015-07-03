@@ -5,6 +5,7 @@ import time
 import logging
 import configparser
 import subprocess
+import os
 
 # Set all of the constants
 cstlogFile = '/var/log/automation.log'
@@ -44,7 +45,9 @@ if __name__ == '__main__':
   try:
     while True: # The main loop that will never end
       #subprocess.call("/home/pi/automation/pyephem.py", shell=True)
-      import pyephem
+      #import pyephem
+      logger.debug("Loading LED Module")
+      os.system('/home/pi/automation/led.py')
       time.sleep(1)
       logger.debug("Bottom of Main Loop")
   except:

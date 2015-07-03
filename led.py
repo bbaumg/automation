@@ -1,22 +1,22 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 #  Call all of the imports
 import time
 import math
 import random
-import MySQLdb
+#import MySQLdb
 import logging
 from neopixel import *
 
 # Set all of the constants
-cstlogFile = '/var/automation/main.log'
+cstlogFile = '/var/log/automation.log'
 cstDBHost = 'localhost'
 cstDBName = 'automation'
 cstDBUser = 'automation'
 cstDBPass = 'Pass1234'
 
 # LED strip configuration:
-cstLEDCount   = 10      # Number of LED pixels.
+cstLEDCount   = 4      # Number of LED pixels.
 cstLEDPin     = 18      # GPIO pin connected to the pixels (must support PWM!).
 cstLEDFreqHZ  = 800000  # LED signal frequency in hertz (usually 800khz)
 cstLEDDMA     = 5       # DMA channel to use for generating signal (try 5)
@@ -95,17 +95,9 @@ def halloween(strip):
 
 def july4th(strip):
   logger.info("Begin Function")
-  segments=int(math.ceil((cstLEDCount+1)/3))
-  logger.debug("LED Segments = " + str(segments))
-  colors=[cRed,cWhite,cBlue]
-  for p in range(0, 3, 1):
-    logger.debug("p = " + str(p))
-    for s in range(1, segments, 1):
-      logger.debug("s = " + str(s))
-  
-  #strip.setPixelColor(int(p+(i*3)-ii), colors[ii]);
-  #strip.show()
-  time.sleep(1)
+  colorWipe(strip, cRed, 2000)
+  colorWipe(strip, cWhite, 2000)
+  colorWipe(strip, cBlue, 2000)
   logger.info("End Function")
 
 def july4th_v1(strip):
@@ -165,45 +157,46 @@ if __name__ == '__main__':
   cOrange = Color(55,255,0)
   cPurple = Color(0,75,130)
   cPink   = Color(21,255,133)
+  july4th(strip)
 
-  logger.critical("LED Startup Process")
-  logger.critical("Starting RED")
-  setAllLEDs(strip,cRed)
-  time.sleep(.2)
-  logger.critical("Starting GREEN")
-  setAllLEDs(strip,cGreen)
-  time.sleep(.2)
-  logger.critical("Starting BLUE")
-  setAllLEDs(strip,cBlue)
-  time.sleep(.2)
-  logger.critical("Starting WHITE")
-  setAllLEDs(strip,cWhite)
-  time.sleep(.2)
-  logger.critical("wiping  RED")
-  colorWipe(strip, cRed)
-  logger.critical("wiping  GREEN")
-  colorWipe(strip, cGreen)
-  logger.critical("wiping  BLUE")
-  colorWipe(strip, cBlue)
-  logger.critical("wiping  WHITE")
-  colorWipe(strip, cWhite)
+  #~ logger.critical("LED Startup Process")
+  #~ logger.critical("Starting RED")
+  #~ setAllLEDs(strip,cRed)
+  #~ time.sleep(.2)
+  #~ logger.critical("Starting GREEN")
+  #~ setAllLEDs(strip,cGreen)
+  #~ time.sleep(.2)
+  #~ logger.critical("Starting BLUE")
+  #~ setAllLEDs(strip,cBlue)
+  #~ time.sleep(.2)
+  #~ logger.critical("Starting WHITE")
+  #~ setAllLEDs(strip,cWhite)
+  #~ time.sleep(.2)
+  #~ logger.critical("wiping  RED")
+  #~ colorWipe(strip, cRed)
+  #~ logger.critical("wiping  GREEN")
+  #~ colorWipe(strip, cGreen)
+  #~ logger.critical("wiping  BLUE")
+  #~ colorWipe(strip, cBlue)
+  #~ logger.critical("wiping  WHITE")
+  #~ colorWipe(strip, cWhite)
+#~ 
+  #~ logger.info("Beginning main loop")
+  #try:
+    #while True: # The main loop that will never end
+      ##rainbow(strip)
+      ##halloween(strip)
+      ##strobe(strip)
+      #july4th(strip)
+      #time.sleep(1)
+      #logger.debug("Bottom of Main Loop")
+  #except:
+    #logger.error("Writing Sensor Data = Unexpected error!")
+    #logger.exception("ERROR!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+    #logger.error("ERROR!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
 
-  logger.info("Beginning main loop")
-  try:
-    while True: # The main loop that will never end
-      #rainbow(strip)
-      #halloween(strip)
-      #strobe(strip)
-      july4th(strip)
-      time.sleep(1)
-      logger.debug("Bottom of Main Loop")
-  except:
-    logger.error("Writing Sensor Data = Unexpected error!")
-    logger.exception("ERROR!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
-    logger.error("ERROR!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
 
-
-  logging.shutdown()
+  #logging.shutdown()
 
 #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 # END PROGRAM
