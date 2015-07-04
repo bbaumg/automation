@@ -11,7 +11,7 @@ chmod 777 $logfile
 echo 'Creating initial git_commit log file'
 gitlogfile='/var/log/git_commit.log'
 touch $gitlogfile
-chown root:root $gitlogfile
+chown pi:pi $gitlogfile
 chmod 777 $gitlogfile
 
 # Setup log rotate
@@ -35,7 +35,7 @@ bash /home/pi/automation/init/update.sh
 
 # Automate git update
 crontab -l > rootcrontab
-echo -en "0 1 * * * bash /home/pi/automation/git_commit.sh\n" >> rootcrontab
+echo -en "0 1 * * * bash /home/pi/automation/git_commit.sh >> /var/log/git_commit.log 2>&1\n" >> rootcrontab
 crontab rootcrontab
 rm -f rootcrontab
 
