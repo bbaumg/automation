@@ -1,8 +1,8 @@
 import ephem
 import datetime
 
-#now = datetime.datetime.now()
-now = datetime.datetime.strptime("2015-04-26 22:30:55", "%Y-%m-%d %H:%M:%S")
+now = datetime.datetime.now()
+#now = datetime.datetime.strptime("2015-04-26 22:30:55", "%Y-%m-%d %H:%M:%S")
 moon = ephem.Moon()
 sun = ephem.Sun()
 
@@ -20,7 +20,7 @@ prevSet = ephem.localtime(local.previous_setting(sun))
 prevRise = ephem.localtime(local.previous_rising(sun))
 
 print("Previous sunrise in KC was: ",ephem.localtime(local.previous_rising(sun)))
-logger.debug("Previous sunrise in KC was: ",ephem.localtime(local.previous_rising(sun)))
+#logger.debug("Previous sunrise in KC was: ",ephem.localtime(local.previous_rising(sun)))
 print("Previous sunset in KC was: ",ephem.localtime(local.previous_setting(sun)))
 print("Next sunrise in KC will be: ",ephem.localtime(local.next_rising(sun)))
 print("Next sunset in KC will be: ",ephem.localtime(local.next_setting(sun)))
@@ -41,8 +41,10 @@ print("It's day." if it_is_day else "It's night.")
 it_is_night = next_sunrise_datetime < next_sunset_datetime
 print("It's night." if it_is_night else "It's day.")
 
-if nextSet < nextRise:
-	print("Day Time")
+#if nextSet < nextRise:
+#	print("Day Time")
+#
+#if nextRise < nextSet:
+#	print("Night Time")
 
-if nextRise < nextSet:
-	print("Night Time")
+# 11/7/2015 - the It's Day, It's night was tested and works.
