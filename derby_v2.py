@@ -104,6 +104,42 @@ def carFinished(lane):
     elif lane ==4:
 
 def get_rank(lane):
+  global p1
+  global p2
+  global p3
+  global p4
+  global p5
+  global p6
+
+  if lane == "START":
+    p1 = ""
+    p2 = ""
+    p3 = ""
+    p4 = ""
+    p5 = ""
+    p6 = ""  
+  elif p1 == "":
+    p1 = lane
+    segment.writeDigit(lane-1, 1)
+    place = "1st Place"
+  elif p2 == "":
+    p2 = lane
+    segment.writeDigit(lane-1, 2)
+    place = "2nd Place"
+  elif p3 == "":
+    p3 = lane
+    segment.writeDigit(lane-2, 3)
+    place = "3rd Place"
+  elif p4 == "":
+    p4 = lane
+    segment.writeDigit(lane-2, 4)
+    place = "4th Place"
+  elif p5 == "":
+    p5 = lane
+    place = "5th Place"
+  elif p6 == "":
+    p6 = lane
+    place = "6th Place"
 
 
 def get_time(lane):
