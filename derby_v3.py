@@ -1,4 +1,12 @@
 #!/usr/bin/env python3
+
+####################################################################
+#  Pinewood derby timer and winner display software.
+#  Written by:  Barrett Baumgartner
+#  Purpose:  Keep track of a 4 lane Pinewood Derby track. Report 
+#            rankings and completion time
+####################################################################
+
 import RPi.GPIO as GPIO
 import sys
 import time
@@ -7,6 +15,7 @@ import signal
 import logging
 from datetime import datetime
 from Adafruit_LED_Backpack import SevenSegment
+from neopixel import *
 
 # Setup logging
 logging.basicConfig(
@@ -16,12 +25,24 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 GPIO.setmode(GPIO.BCM)
-GPIO.setup(18, GPIO.IN, pull_up_down=GPIO.PUD_UP)
-GPIO.setup(23, GPIO.IN, pull_up_down=GPIO.PUD_UP)
-GPIO.setup(24, GPIO.IN, pull_up_down=GPIO.PUD_UP)
-GPIO.setup(25, GPIO.IN, pull_up_down=GPIO.PUD_UP)
-GPIO.setup(4, GPIO.IN, pull_up_down=GPIO.PUD_UP)
-GPIO.setup(17, GPIO.OUT)
+GPIO.setup(22, GPIO.IN, pull_up_down=GPIO.PUD_UP) # GPIO 22(PIN 15) Start
+GPIO.setup(23, GPIO.IN, pull_up_down=GPIO.PUD_UP) # GPIO 23(PIN 16) Lane 1
+GPIO.setup(24, GPIO.IN, pull_up_down=GPIO.PUD_UP) # GPIO 24(PIN 18) Lane 2
+GPIO.setup(25, GPIO.IN, pull_up_down=GPIO.PUD_UP) # GPIO 25(PIN 22) Lane 3
+GPIO.setup(4, GPIO.IN, pull_up_down=GPIO.PUD_UP)  # GPIO  4(PIN  7) Lane 4
+GPIO.setup(27, GPIO.IN, pull_up_down=GPIO.PUD_UP) # GPIO 27(PIN 13) Reset Switch
+
+try:
+  # Indicator LED Configuration:  Addressable Pixels
+  cstLEDCount   = 4       # Number of LED pixels.
+  cstLEDPin     = 18      # GPIO pin connected to the pixels (must support PWM!).
+  cstLEDFreqHZ  = 800000  # LED signal frequency in hertz (usually 800khz)
+  cstLEDDMA     = 5       # DMA channel to use for generating signal (try 5)
+  cstLEDInvert  = False   # True to invert the signal (when using NPN transistor level shift)
+  strip = Adafruit_NeoPixel(cstLEDCount, cstLEDPin, cstLEDFreqHZ, cstLEDDMA, cstLEDInvert)
+  #~ strip.begin()
+except:
+  print("I guess it failed")
 
 dispTimeL1 = SevenSegment.SevenSegment(address=0x70)
 dispTimeL1.begin()
@@ -31,6 +52,19 @@ dispTimeL2 = SevenSegment.SevenSegment(address=0x71)
 dispTimeL2.begin()
 dispTimeL2.colon = False
 
+#~ dispTimeL3 = SevenSegment.SevenSegment(address=0x72)
+#~ dispTimeL3.begin()
+#~ dispTimeL3.colon = False
+
+#~ dispTimeL4 = SevenSegment.SevenSegment(address=0x73)
+#~ dispTimeL4.begin()
+#~ dispTimeL4.colon = False
+
+l1 = False
+l2 = False
+l3 = False
+l4 = False
+
 val_Lane2Disp = {1:0, 2:1, 3:3, 4:4}
 
 def signal_handler(signal, frame):
@@ -39,14 +73,31 @@ def signal_handler(signal, frame):
 
 def raceStart(channel):
   global dt_RaceStart
+  global p1
+  global p2
+  global p3
+  global p4
   dt_RaceStart = datetime.now()
   print("Start of race = " + str(dt_RaceStart))
-  getRank("START")
+  #~ getRank("START")
+  p1 = ""
+  p2 = ""
+  p3 = ""
+  p4 = ""
+  l1 = False
+  l2 = False
+  l3 = False
+  l4 = False
   outResetDisp()
 
 def lane1(channel):
   lane = 1
-  processRace(lane)
+  global l1
+  if l1 == True:
+    print("That care already whent through")
+  else:
+    l1 = True
+    processRace(lane)
 
 def lane2(channel):
   lane = 2
@@ -74,14 +125,8 @@ def getRank(lane):
   global p2
   global p3
   global p4
-  
-  if lane == "START":
-    p1 = ""
-    p2 = ""
-    p3 = ""
-    p4 = ""
-    GPIO.output(17, False)
-  elif p1 == "":
+   
+  if p1 == "":
     p1 = lane
     rank = 1
     return 1
@@ -98,7 +143,6 @@ def getRank(lane):
     rank = 4
     return 4
   else:
-    GPIO.output(17, True)
     print("That is too many cars.  Reset the race:")
   
 def getTime(lane):
@@ -113,6 +157,12 @@ def outResetDisp():
   for i in range(0, 4, 1):
     dispTimeL2.set_digit_raw(i, 0x40)
   dispTimeL2.write_display()
+  #~ for i in range(0, 4, 1):
+    #~ dispTimeL3.set_digit_raw(i, 0x40)
+  #~ dispTimeL3.write_display()
+  #~ for i in range(0, 4, 1):
+    #~ dispTimeL4.set_digit_raw(i, 0x40)
+  #~ dispTimeL4.write_display()
 
 def outTimeDisp(lane, timer):
   if lane == 1:
@@ -133,29 +183,13 @@ def outTimeDisp(lane, timer):
     #~ dispTimeL4.write_display()
   else:
     print("No Display for that lane " + str(lane))
-
-def outTimeDisp_v1(lane):
-  timer = (datetime.now() - dt_RaceStart)
-  timer = float(str(timer.seconds) + "." + str(timer.microseconds / 1000))
-  print(timer)
-  if lane == 1:
-    dispTimeL1.clear()
-    dispTimeL1.print_float(timer)
-    dispTimeL1.write_display()
-    print("L1 = " + str(timer))
-  elif lane == 2:
-    print("L2 = " + str(timer))
-  elif lane == 3:
-    print("L3 = " + str(timer))
-  elif lane == 4:
-    print("L4 = " + str(time))
-  #segment.writeDigit(1, 8)
   
-GPIO.add_event_detect(18, GPIO.RISING, callback=raceStart, bouncetime=10000)
+GPIO.add_event_detect(22, GPIO.RISING, callback=raceStart, bouncetime=10000)
 GPIO.add_event_detect(23, GPIO.RISING, callback=lane1, bouncetime=3000)
 GPIO.add_event_detect(24, GPIO.RISING, callback=lane2, bouncetime=3000)
 GPIO.add_event_detect(25, GPIO.RISING, callback=lane3, bouncetime=3000)
 GPIO.add_event_detect(4, GPIO.RISING, callback=lane4, bouncetime=3000)
+GPIO.add_event_detect(27, GPIO.RISING, callback=raceStart, bouncetime=3000)
 
 signal.signal(signal.SIGINT, signal_handler)
 print('Press Ctrl+C')
