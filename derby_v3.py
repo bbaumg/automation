@@ -77,6 +77,10 @@ def raceStart(channel):
   global p2
   global p3
   global p4
+  global l1
+  global l2
+  global l3
+  global l4
   dt_RaceStart = datetime.now()
   print("Start of race = " + str(dt_RaceStart))
   #~ getRank("START")
@@ -94,7 +98,7 @@ def lane1(channel):
   lane = 1
   global l1
   if l1 == True:
-    print("That care already whent through")
+    print("That car already whent through")
   else:
     l1 = True
     processRace(lane)
