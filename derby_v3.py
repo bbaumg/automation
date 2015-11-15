@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
 
 ####################################################################
 #  Pinewood derby timer and winner display software.
@@ -13,6 +13,8 @@ import time
 import math
 import signal
 import logging
+#~ from sets import Set
+#~ from collections import deque
 from datetime import datetime
 from Adafruit_LED_Backpack import SevenSegment
 from neopixel import *
@@ -60,18 +62,32 @@ dispTimeL2.colon = False
 #~ dispTimeL4.begin()
 #~ dispTimeL4.colon = False
 
+# Ranking variables for finish placement.  Holds the lane number as value.
+p1 = ""
+p2 = ""
+p3 = ""
+p4 = ""
+# Yes or No Lane Finished race.  Use to catch multiple cars in same lane
 l1 = False
 l2 = False
 l3 = False
 l4 = False
+#~ if lane == 1:
+#~ elif lane == 2:
+#~ elif lane == 3:
+#~ elif lane == 4:
 
-val_Lane2Disp = {1:0, 2:1, 3:3, 4:4}
+# Disctionary list to hold key value pair of lane to dispaly...
+#~ val_Lane2Disp = {1:0, 2:1, 3:3, 4:4}  Stopped using.
+dictPin2Lane = {23:1, 24:2, 25:3, 4:4}
+listPlacement = []
+dictLaneTime = {1:0, 2:0, 3:0, 4:0}
 
 def signal_handler(signal, frame):
     print('You pressed Ctrl+C!')
     sys.exit(0)
 
-def raceStart(channel):
+def raceStart_v1(channel):
   global dt_RaceStart
   global p1
   global p2
@@ -94,7 +110,27 @@ def raceStart(channel):
   l4 = False
   outResetDisp()
 
+def raceStart(channel):
+  global dt_RaceStart
+  dt_RaceStart = datetime.now()
+  print("Start of race = " + str(dt_RaceStart))
+  dictPin2Lane = {23:1, 24:2, 25:3, 4:4}
+  listPlacement = []
+  dictLaneTime = {1:0, 2:0, 3:0, 4:0}
+
+def lane_v2(channel):
+  lane = dictPin2Lane[channel]
+  print("Lane " + str(lane) + " has finished")
+  timer = (datetime.now() - dt_RaceStart)
+  timer = float(str(timer.seconds) + "." + str(timer.microseconds / 1000))
+  dictLaneTime[lane] = timer
+  print(dictLaneTime)
+  listPlacement.append(lane)
+  print(listPlacement)
+  #~ print(listPlacement)
+
 def lane1(channel):
+  print(channel)
   lane = 1
   global l1
   if l1 == True:
@@ -116,13 +152,26 @@ def lane4(channel):
   processRace(lane)
 
 def processRace(lane):
+  global l1
+  global l2
+  global l3
+  global l4
   #~ print("Lane " + str(lane) + " = ")
   finishTime = getTime(lane)
   finishRank = getRank(lane)
   #~ print(finishTime)
   #~ print(finishRank)
   outTimeDisp(lane, finishTime)
-  #~ print("End lane " + str(lane))
+  if lane == 1:
+    l1 = True
+  elif lane == 2:
+    l2 = True
+  elif lane == 3:
+    l3 = True
+  elif lane == 4:
+    l4 = True
+  else:
+    print("That lane does not exist")
 
 def getRank(lane):
   global p1
@@ -189,10 +238,14 @@ def outTimeDisp(lane, timer):
     print("No Display for that lane " + str(lane))
   
 GPIO.add_event_detect(22, GPIO.RISING, callback=raceStart, bouncetime=10000)
-GPIO.add_event_detect(23, GPIO.RISING, callback=lane1, bouncetime=3000)
-GPIO.add_event_detect(24, GPIO.RISING, callback=lane2, bouncetime=3000)
-GPIO.add_event_detect(25, GPIO.RISING, callback=lane3, bouncetime=3000)
-GPIO.add_event_detect(4, GPIO.RISING, callback=lane4, bouncetime=3000)
+#~ GPIO.add_event_detect(23, GPIO.RISING, callback=lane1, bouncetime=3000)
+#~ GPIO.add_event_detect(24, GPIO.RISING, callback=lane2, bouncetime=3000)
+#~ GPIO.add_event_detect(25, GPIO.RISING, callback=lane3, bouncetime=3000)
+#~ GPIO.add_event_detect(4, GPIO.RISING, callback=lane4, bouncetime=3000)
+GPIO.add_event_detect(23, GPIO.RISING, callback=lane_v2, bouncetime=3000)
+GPIO.add_event_detect(24, GPIO.RISING, callback=lane_v2, bouncetime=3000)
+GPIO.add_event_detect(25, GPIO.RISING, callback=lane_v2, bouncetime=3000)
+GPIO.add_event_detect(4, GPIO.RISING, callback=lane_v2, bouncetime=3000)
 GPIO.add_event_detect(27, GPIO.RISING, callback=raceStart, bouncetime=3000)
 
 signal.signal(signal.SIGINT, signal_handler)
