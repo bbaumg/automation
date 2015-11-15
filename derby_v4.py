@@ -4,7 +4,14 @@
 #  Pinewood derby timer and winner display software.
 #  Written by:  Barrett Baumgartner
 #  Purpose:  Keep track of a 4 lane Pinewood Derby track. Report 
-#            rankings and completion time
+#            rankings and completion time.  Built for pack 900
+#
+#  Hardware needed:
+#    1 = Raspberry Pi (I used a Pi 2)
+#    4 = Adafruit 0.56" 4-Digit 7-Segment Display w/I2C Backpack
+#    1 = Adafruit Perma-Proto HAT for Pi Mini Kit - No EEPROM
+#    4 = Phototransistors (I used OSRAM 720-SFH314)
+#    1 = 
 ####################################################################
 
 import RPi.GPIO as GPIO
